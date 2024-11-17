@@ -9,6 +9,7 @@ import java.io.InputStream;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -16,6 +17,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.MessageSource;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -37,6 +39,9 @@ import com.example.pictgram.repository.TopicRepository;
 
 @Controller
 public class TopicsController {
+    
+    @Autowired
+    private MessageSource messageSource;
     
     @Autowired
     private ModelMapper modelMapper;
@@ -125,12 +130,12 @@ public class TopicsController {
     
     @PostMapping("/topic")
     public String create(Principal principal, @Validated @ModelAttribute("form") TopicForm form, BindingResult result,
-            Model model, @RequestParam MultipartFile image, RedirectAttributes redirAttrs)
+            Model model, @RequestParam MultipartFile image, RedirectAttributes redirAttrs, Locale locale)
             throws IOException {
         if (result.hasErrors()) {
             model.addAttribute("hasMessage", true);
             model.addAttribute("class", "alert-danger");
-            model.addAttribute("message", "投稿に失敗しました。");
+            model.addAttribute("message", messageSource.getMessage("topics.create.flash.1", new String[] {}, locale));
             return "topics/new";
         }
 
@@ -155,7 +160,7 @@ public class TopicsController {
 
         redirAttrs.addFlashAttribute("hasMessage", true);
         redirAttrs.addFlashAttribute("class", "alert-info");
-        redirAttrs.addFlashAttribute("message", "投稿に成功しました。");
+        redirAttrs.addFlashAttribute("message", messageSource.getMessage("topics.create.flash.2", new String[] {}, locale));
 
         return "redirect:/topics";
     }
